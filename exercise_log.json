@@ -1,0 +1,37 @@
+[
+    {
+        "user_info": {
+            "username": "User",
+            "height": 170,
+            "weight": 70
+        },
+        "exercise_records": [
+            {
+                "timestamp": "2026/02/09/22/09/42",
+                "exercise_name": "RunningDetector",
+                "total_count": 32,
+                "correct_count": 0,
+                "wrong_count": 0,
+                "accuracy": 0.0,
+                "distance_m": 19.74,
+                "duration_sec": 29.1
+            },
+            {
+                "timestamp": "2026/02/09/22/10/23",
+                "exercise_name": "SquatDetector",
+                "total_count": 11,
+                "correct_count": 10,
+                "wrong_count": 1,
+                "accuracy": 90.91
+            },
+            {
+                "timestamp": "2026/02/09/22/10/46",
+                "exercise_name": "JumpingJackDetector",
+                "total_count": 15,
+                "correct_count": 14,
+                "wrong_count": 1,
+                "accuracy": 93.33
+            }
+        ]
+    }
+]

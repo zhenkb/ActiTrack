@@ -1,0 +1,7 @@
+{
+    "id": "full",
+    "name": "Full",
+    "filename": "pose_landmarker_full.task",
+    "url": "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task",
+    "last_updated": 1771246341.5342524
+}

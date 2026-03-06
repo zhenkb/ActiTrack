@@ -1,0 +1,88 @@
+{
+    "system_settings": {
+        "camera_id": 0,
+        "video_width": 640,
+        "video_height": 480,
+        "language": "ZH_TW",  
+        "default_target_count": 10,
+        "default_max_wrong": 5,
+        "mediapipe_settings": {
+            "min_detection_confidence": 0.5,
+            "min_tracking_confidence": 0.5
+        }
+    },
+    "detectors": [
+        {
+            "module": "modules.body_jump_main", 
+            "class": "JumpingJackDetector",
+            "enabled": true,
+            "use_custom_config": true,
+            "config": {
+                "arm_down_angle": 45,
+                "arm_up_angle": 155,
+                "elbow_straight_angle": 120,
+                "knee_straight_angle": 150,
+                "knee_strict_angle": 165,
+                "auto_pause_seconds": 5.0
+            }
+        },
+        {
+            "module": "modules.body_pushup_main",
+            "class": "PushUpDetector",
+            "enabled": true,
+            "use_custom_config": true,
+            "max_wrong": 6,
+            "config": {
+                "elbow_up_angle": 150,
+                "elbow_down_angle": 120,
+                "hip_straight_angle": 135,
+                "knee_straight_angle": 140,
+                "auto_pause_seconds": 5.0
+            }
+        },
+        {
+            "module": "modules.body_squat_main",
+            "class": "SquatDetector",
+            "enabled": true,
+            "use_custom_config": true,
+            "config": {
+                "waist_up_angle": 120,
+                "waist_down_angle": 90,
+                "knee_straight_angle": 120,
+                "knee_down_angle": 90,
+                "auto_pause_seconds": 5.0
+            }
+        },
+        {
+            "module": "modules.body_situp_main",
+            "class": "SitUpDetector",
+            "enabled": true,
+            "use_custom_config": true,
+            "config": {
+                "waist_down_angle": 95,
+                "waist_up_angle": 55,
+                "arm_ratio_threshold": 0.45,
+                "knee_wrong_angle": 170,
+                "knee_straight_angle": 130,
+                "auto_pause_seconds": 5.0
+            }
+        },
+        {
+            "module": "modules.body_running_main",
+            "class": "RunningDetector",
+            "enabled": true,
+            "use_custom_config": true,
+            "target_count": 30,
+            "config": {
+                "human_height": 170,
+                "left_leg_up_knee_angle": 135,
+                "left_leg_straight_knee_angle": 155,
+                "right_leg_up_knee_angle": 135,
+                "right_leg_straight_knee_angle": 155,
+                "step_cooldown": 0.35,
+                "visibility_threshold": 0.6,
+                "auto_pause_seconds": 5.0
+            }
+        }
+    ]
+}

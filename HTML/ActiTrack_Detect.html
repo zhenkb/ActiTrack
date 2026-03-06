@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ActiTrack運動辨識 - 偵測中</title>
+  <link rel="stylesheet" href="actitrack-style.css">
+</head>
+<body>
+    <button id="restore-btn" class="restore-btn" onclick="toggleSidebar()">☰</button>
+    <div class="container" id="container">
+        <div class="sidebar" id="sidebar">
+            <div class="header">
+                <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+                <div class="title" onclick="window.location.href='ActiTrack_Interface.html'" style="cursor: pointer;">ActiTrack運動辨識</div>
+            </div>
+            
+            <div class="menu-section">
+                <div class="menu-item" onclick="toggleSubmenu('submenu1')">
+                    <span>運動紀錄新增</span>
+                    <span class="dropdown-icon" id="icon1">▼</span>
+                </div>
+                <div class="submenu collapsed" id="submenu1"></div>
+                
+                <div class="menu-item" onclick="toggleSubmenu('submenu2')">
+                    <span>記錄查詢</span>
+                    <span class="dropdown-icon" id="icon2">▼</span>
+                </div>
+                <div class="submenu collapsed" id="submenu2">
+                    <div class="submenu-item" onclick="window.location.href='ActiTrack_Exercise_Record.html'">運動記錄</div>
+                    <div class="submenu-item" onclick="window.location.href='ActiTrack_BMI_Record.html'">數值紀錄</div>
+                </div>
+            </div>
+            
+             <div class="user-section">
+                <div class="user-info-container">
+                      <div class="user-icon">
+                        <img id="sidebar-user-avatar" src="" style="width:100%; height:100%; object-fit:cover; display:none;">
+                        <svg id="sidebar-user-placeholder" class="avatar-placeholder" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                      </div>
+                      <div class="user-name">user</div>
+                </div>
+                <div class="settings-icon" onclick="window.location.href='ActiTrack_Settings_Profile.html'">⚙</div>
+            </div>
+            <div class="resizer" id="resizer"></div>
+        </div>
+        
+        <div class="main-content">
+            <div class="detect-top">
+                <div class="detect-now">目前偵測為：</div>
+                <div class="detect-name" id="mode-display">載入中...</div>
+            </div>
+
+            <div class="detect-mid">
+                
+                <div class="param-panel" id="feedback-display">
+                    </div>
+
+                <div class="right-col">
+                    
+                    <div class="preview-wrap">
+                        <div class="placeholder-text"></div>
+                        <img id="live-feed" src="" alt="Live Stream" style="display: none;">
+                        
+                        <label class="skeleton-toggle">
+                            <input type="checkbox" checked onchange="toggleSkeletonUI(this.checked)"> 骨架
+                        </label>
+                    </div>
+                    
+                    <div class="info-row">
+                        <div class="info-box status-box">
+                            <span id="status-text">偵測中...</span>
+                        </div>
+                        <div class="info-box count-correct">
+                            <div class="count-title">正確次數：</div>
+                            <div class="count-number" id="count-display">0</div>
+                        </div>
+                        <div class="info-box count-wrong">
+                            <div class="count-title">錯誤次數：</div>
+                            <div class="count-number" id="bad-count-display">0</div>
+                        </div>
+                    </div>
+
+                    <div class="action-row">
+                        <button class="action-btn btn-param" onclick="alert('參數調整功能開發中')">參數調整</button>
+                        <button class="action-btn btn-stop" onclick="stopAndExit()">停止偵測</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/actitrack-api.js?v=5"></script>
+    <script src="js/actitrack-ui.js?v=5"></script>
+    
+    <script>
+        function toggleSkeletonUI(isChecked) {
+            if (window.actiTrack) window.actiTrack.toggleSkeleton(isChecked);
+        }
+
+        function stopAndExit() {
+            if (window.actiTrack) window.actiTrack.stopMonitoring();
+            fetch('/api/stop', { method: 'POST' }).finally(() => {
+                window.location.href = 'ActiTrack_Interface.html';
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const targetMode = new URLSearchParams(window.location.search).get('mode') || 'auto';
+
+            fetch(`/api/start?mode=${targetMode}`, { method: 'POST' })
+                .then(res => res.json())
+                .then(() => {
+                    if (window.actiTrack) {
+                        window.actiTrack.startMonitoring({
+                            videoId: 'live-feed', 
+                            countId: 'count-display', 
+                            badCountId: 'bad-count-display',
+                            modeId: 'mode-display', 
+                            panelId: 'feedback-display'
+                        });
+                        // 當 API 啟動後，顯示影像並覆蓋佔位文字
+                        document.getElementById('live-feed').style.display = 'block';
+                    }
+                })
+                .catch(e => console.error("啟動偵測失敗:", e));
+        });
+    </script>
+</body>
+<script src="js/ActiTrack_User_Sync.js"></script>
+
+</html>

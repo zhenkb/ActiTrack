@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ActiTrack - 參數調整</title>
+  <link rel="stylesheet" href="actitrack-style.css" />
+  <style>
+    /* 直接修改 main-content 的佈局，使其成為左右分欄容器 */
+    .main-content {
+      display: flex;
+      flex-direction: row; /* 左右排列 */
+      gap: 20px;
+      overflow: hidden; /* 防止視窗出現捲軸 */
+      padding: 20px; /* 內邊距 */
+      height: 96vh; /* 限制高度 */
+    }
+
+    /* 左側：運動列表面板 */
+    .exercise-list-panel {
+      flex: 0 0 250px; /* 固定寬度 */
+      background-color: #dcdcdc;
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      gap: 15px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      height: 100%; /* 填滿 main-content */
+    }
+
+    .panel-header {
+      font-size: calc(1.2vw + 8px);
+      font-weight: bold;
+      color: #333;
+      text-align: center;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #bbb;
+    }
+
+    .exercise-list {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .exercise-item {
+      padding: 12px 15px;
+      background-color: white;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #555;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 2px solid transparent;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .exercise-item:hover {
+      background-color: #f0f0f0;
+    }
+
+    .exercise-item.active {
+      background-color: #526165;
+      color: white;
+      border-color: #526165;
+    }
+
+    .add-btn {
+      background-color: #fff;
+      border: 2px dashed #888;
+      color: #555;
+      text-align: center;
+      justify-content: center;
+    }
+
+    /* 右側：詳細參數編輯區 */
+    .params-editor-panel {
+      flex: 1; /* 佔滿剩餘空間 */
+      background-color: #f5f5f5;
+      border-radius: 20px;
+      padding: 30px;
+      overflow-y: auto; /* 內容過多時捲動 */
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      height: 100%; /* 填滿 main-content */
+    }
+
+    .section-block {
+      background-color: white;
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #2b2bd6;
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .json-field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 15px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .json-field-group:last-child {
+      border-bottom: none;
+    }
+
+    .field-row {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .field-label {
+      min-width: 120px;
+      font-weight: bold;
+      color: #555;
+      font-size: 15px;
+    }
+
+    .field-input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .field-select {
+        flex: 1;
+        padding: 8px 12px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 14px;
+        background-color: white;
+    }
+
+    .condition-card {
+      background-color: #f9f9f9;
+      border-left: 4px solid #526165;
+      padding: 10px 15px;
+      margin-top: 10px;
+      border-radius: 4px;
+    }
+
+    .condition-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .btn-action {
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .btn-edit { background-color: #e0e0e0; color: #333; }
+    .btn-delete { background-color: #ffdddd; color: #a00; }
+    .btn-add { background-color: #dff0d8; color: #3c763d; width: 100%; margin-top: 10px; }
+
+    .editor-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+        margin-top: auto;
+        padding-top: 20px;
+        border-top: 2px solid #ddd;
+    }
+
+    .footer-btn {
+        padding: 10px 25px;
+        border-radius: 20px;
+        font-weight: bold;
+        cursor: pointer;
+        border: none;
+        font-size: 16px;
+    }
+
+    .btn-save-json { background-color: #2b2bd6; color: white; }
+    .btn-reset { background-color: #888; color: white; }
+
+    /* RWD */
+    @media (max-width: 900px) {
+      .main-content {
+        flex-direction: column;
+        height: auto;
+        overflow: auto;
+      }
+      .exercise-list-panel {
+        flex: none;
+        height: 200px;
+        width: 100%;
+      }
+      .params-editor-panel {
+        flex: none;
+        height: auto;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button id="restore-btn" class="restore-btn" onclick="toggleSidebar()">☰</button>
+
+  <div class="container" id="container">
+    <div class="sidebar" id="sidebar">
+      <div class="header">
+        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+        <div class="title" onclick="window.location.href='ActiTrack_Interface.html'" style="cursor: pointer;">ActiTrack運動辨識</div>
+      </div>
+
+      <div class="menu-section">
+        <div class="menu-item" onclick="toggleSubmenu('submenu1')">
+          <span>運動紀錄新增</span>
+          <span class="dropdown-icon" id="icon1">▼</span>
+        </div>
+        <div class="submenu" id="submenu1" style="display: block;">
+          <div class="submenu-item">伏地挺身</div>
+          <div class="submenu-item">仰臥起坐</div>
+          <div class="submenu-item">開合跳</div>
+          <div class="submenu-item active" onclick="window.location.href='ActiTrack_Detect.html'">自動偵測</div>
+        </div>
+
+        <div class="menu-item" onclick="toggleSubmenu('submenu2')">
+          <span>記錄查詢</span>
+          <span class="dropdown-icon" id="icon2">▼</span>
+        </div>
+        <div class="submenu collapsed" id="submenu2">
+                    <div class="submenu-item" onclick="window.location.href='ActiTrack_Exercise_Record.html'">運動記錄</div>
+                    <div class="submenu-item" onclick="window.location.href='ActiTrack_BMI_Record.html'">數值紀錄</div>
+          </div>
+      </div>
+
+      <div class="user-section">
+        <div class="user-info-container">
+                      <div class="user-icon">
+                        <img id="sidebar-user-avatar" src="" style="width:100%; height:100%; object-fit:cover; display:none;">
+                        <svg id="sidebar-user-placeholder" class="avatar-placeholder" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                      </div>
+                      <div class="user-name">user</div>
+                </div>
+        <div class="settings-icon" onclick="window.location.href='ActiTrack_Settings_Profile.html'">⚙</div>
+      </div>
+    </div>
+
+    <div class="resizer" id="resizer"></div>
+
+    <!-- main-content 本身就是 Flex 容器，直接包含兩個 Panel -->
+    <div class="main-content">
+
+      <!-- 左側：運動列表 -->
+      <div class="exercise-list-panel">
+          <div class="panel-header">運動列表</div>
+          <div class="exercise-list">
+              <div class="exercise-item active">
+                  <span>伏地挺身 (Push Up)</span>
+                  <span>✏️</span>
+              </div>
+              <div class="exercise-item">
+                  <span>仰臥起坐 (Sit Up)</span>
+              </div>
+              <div class="exercise-item">
+                  <span>開合跳 (Jumping Jack)</span>
+              </div>
+              <div class="exercise-item add-btn">
+                  <span>+ 新增運動規則</span>
+              </div>
+          </div>
+      </div>
+
+      <!-- 右側：參數編輯 -->
+      <div class="params-editor-panel">
+
+          <!-- 全域設定 -->
+          <div class="section-block">
+              <div class="section-title">通用設定</div>
+              <div class="field-row">
+                  <span class="field-label">可見度閾值</span>
+                  <input type="number" class="field-input" value="0.5" step="0.1">
+                  <span style="font-size: 12px; color: #888;">(Visibility Threshold)</span>
+              </div>
+          </div>
+
+          <!-- 階段設定 (Stages) -->
+          <div class="section-block">
+              <div class="section-title">
+                  <span>動作階段 (Stages)</span>
+                  <button class="btn-action btn-add" style="width: auto;">+ 新增階段</button>
+              </div>
+
+              <!-- 階段卡片 1 -->
+              <div class="json-field-group">
+                  <div class="field-row">
+                      <span class="field-label">階段名稱</span>
+                      <input type="text" class="field-input" value="up" readonly>
+                  </div>
+
+                  <!-- 角度條件列表 -->
+                  <div class="condition-card">
+                      <div class="condition-header">
+                          <span>角度條件 1</span>
+                          <button class="btn-action btn-delete">✕</button>
+                      </div>
+                      <div class="field-row" style="margin-bottom: 5px;">
+                          <span class="field-label" style="min-width: 80px;">關鍵點</span>
+                          <select class="field-select"><option>left_elbow</option><option>right_elbow</option></select>
+                      </div>
+                      <div class="field-row">
+                          <span class="field-label" style="min-width: 80px;">閾值</span>
+                          <select class="field-select" style="width: 60px;"><option>></option><option><</option></select>
+                          <input type="number" class="field-input" value="160">
+                      </div>
+                  </div>
+                  <button class="btn-action btn-add">＋ 新增角度條件</button>
+              </div>
+
+              <!-- 階段卡片 2 -->
+              <div class="json-field-group">
+                  <div class="field-row">
+                      <span class="field-label">階段名稱</span>
+                      <input type="text" class="field-input" value="down" readonly>
+                  </div>
+                  <div class="condition-card">
+                       <div class="condition-header">
+                          <span>角度條件 1</span>
+                          <button class="btn-action btn-delete">✕</button>
+                      </div>
+                      <div class="field-row">
+                          <span class="field-label" style="min-width: 80px;">關鍵點</span>
+                          <select class="field-select"><option>left_elbow</option></select>
+                      </div>
+                       <div class="field-row">
+                          <span class="field-label" style="min-width: 80px;">閾值</span>
+                          <select class="field-select" style="width: 60px;"><option><</option></select>
+                          <input type="number" class="field-input" value="90">
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          <!-- 狀態轉換與計數 (Transitions) -->
+          <div class="section-block">
+              <div class="section-title">狀態轉換與計數</div>
+              <div class="json-field-group">
+                  <div class="field-row">
+                      <span class="field-label">起始狀態</span>
+                      <input type="text" class="field-input" value="up" readonly>
+                  </div>
+                  <div class="field-row">
+                      <span class="field-label">目標狀態</span>
+                      <input type="text" class="field-input" value="down" readonly>
+                  </div>
+              </div>
+              <div class="json-field-group" style="border-top: 1px dashed #ccc; padding-top: 10px;">
+                   <div class="field-row">
+                      <span class="field-label">計數增加時機</span>
+                      <select class="field-select">
+                          <option value="down->up">當從 down 變為 up 時</option>
+                          <option value="up->down">當從 up 變為 down 時</option>
+                      </select>
+                  </div>
+              </div>
+          </div>
+
+          <!-- 底部按鈕 -->
+          <div class="editor-footer">
+              <button class="footer-btn btn-reset">重置</button>
+              <button class="footer-btn btn-save-json">儲存參數設定</button>
+          </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const restoreBtn = document.getElementById('restore-btn');
+      sidebar.classList.toggle('hidden');
+      if (sidebar.classList.contains('hidden')) {
+        setTimeout(() => restoreBtn.classList.add('visible'), 300);
+      } else {
+        restoreBtn.classList.remove('visible');
+      }
+    }
+
+    function toggleSubmenu(id) {
+      const sm = document.getElementById(id);
+      const icon = document.getElementById(id==='submenu1'?'icon1':'icon2');
+      if (sm.style.display === 'none' || sm.style.display === '') {
+        sm.style.display = 'block';
+        icon.classList.remove('rotated');
+      } else {
+        sm.style.display = 'none';
+        icon.classList.add('rotated');
+      }
+    }
+
+    document.querySelectorAll('.exercise-item').forEach(item => {
+        item.addEventListener('click', function() {
+            if(!this.classList.contains('add-btn')) {
+                document.querySelectorAll('.exercise-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            }
+        });
+    });
+
+    const resizer = document.getElementById('resizer');
+    const sidebar = document.getElementById('sidebar');
+    let isResizing = false;
+
+    resizer.addEventListener('mousedown', () => {
+      isResizing = true;
+      document.body.style.cursor = 'col-resize';
+      sidebar.style.transition = 'none';
+      resizer.classList.add('active');
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isResizing) return;
+      let p = (e.clientX / window.innerWidth) * 100;
+      if (p < 10) p = 10;
+      if (p > 50) p = 50;
+      sidebar.style.flex = `0 0 ${p}%`;
+      sidebar.style.width = `${p}%`;
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (!isResizing) return;
+      isResizing = false;
+      document.body.style.cursor = 'default';
+      sidebar.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+      resizer.classList.remove('active');
+    });
+  </script>
+</body>
+<script src="js/ActiTrack_User_Sync.js"></script>
+
+</html>
